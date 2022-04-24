@@ -22,32 +22,30 @@ const Home = ({ navigation }) => {
     const context = useContext(AuthGlobal)
     const [userProfile, setUserProfile] = useState()
 
-    useFocusEffect(
-        useCallback(() => {
-            if (
-                context.stateUser.isAuthenticated === false ||
-                context.stateUser.isAuthenticated === null
-            ) {
-                navigation.navigate("SignIn Screen")
-            }
+    useEffect(() => {
+        if (
+            context.stateUser.isAuthenticated === false ||
+            context.stateUser.isAuthenticated === null
+        ) {
+            navigation.navigate("SignIn Screen")
+        }
 
-            console.log(context.stateUser.user.sub);
+        console.log(context.stateUser.user.sub);
 
-            AsyncStorage.getItem("jwt")
-                .then((res) => {
-                    axios
-                        .get(`${baseURL}users/${context.stateUser.user.sub}`, {
-                            headers: { Authorization: `Bearer ${res}` },
-                        })
-                        .then((user) => setUserProfile(user.data))
-                })
-                .catch((error) => console.log(error))
+        AsyncStorage.getItem("jwt")
+            .then((res) => {
+                axios
+                    .get(`${baseURL}users/${context.stateUser.user.sub}`, {
+                        headers: { Authorization: `Bearer ${res}` },
+                    })
+                    .then((user) => setUserProfile(user.data))
+            })
+            .catch((error) => console.log(error))
 
-            return () => {
-                setUserProfile();
-            }
-
-        }, [context.stateUser.isAuthenticated]))
+        return () => {
+            setUserProfile();
+        }
+    }, [context.stateUser.isAuthenticated])
 
     return (
         <ScrollView showsVerticalScrollIndicator={false}>
