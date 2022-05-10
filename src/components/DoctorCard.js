@@ -11,26 +11,29 @@ import StarRating from 'react-native-star-rating';
 
 // ==========================================  Creating a Component  ========================================
 
-const DoctorCard = ({navigation}) => {
+const DoctorCard = (props) => {
+
+    const {navigation, route} = props;
+
     return (
         <Pressable style={({ pressed }) => [{
             backgroundColor: pressed ? '#f4eded' : '#fff',
         },
-        styles.container]} onPress={() => navigation.navigate("Doctor Detail")}>
+        styles.container]} onPress={props.onPress}>
 
 
 {/* ---------------------------  Top Rated Doctor Image  */}
            
-            <Image source={require('../assets/images/My-Pic.jpg')} style={styles.docImage} />
+            <Image source={{uri: props.docImage ? props.docImage : 'https://i.pinimg.com/564x/2d/4a/33/2d4a33f892bd525361c668dafb625dec.jpg'}} style={styles.docImage} />
 
 
 {/* ---------------------------  -Doctor Detail Container  */}
             <View style={styles.docDetailContainer}>
-                <Text style={styles.docName}>Dr. Muhammad Usman Bhatti</Text>
+                <Text style={styles.docName}>{props.docName}</Text>
 
-                <Text>MBBS - FCPS</Text>
+                <Text>{props.docEdu}</Text>
 
-                <Text>Eye Specialist</Text>
+                <Text>{props.docCategory}</Text>
 
                 <View style={{flexDirection: 'row'}}>
                     <StarRating
@@ -41,7 +44,7 @@ const DoctorCard = ({navigation}) => {
                         starSize={18}
                     />
                     
-                    <Text style={{marginLeft: 5}}>4.5  -  50 Reviews</Text>
+                    <Text style={{marginLeft: 5}}>{props.docRating}  {props.docReview && `-  ${props.docReview} Reviews`}</Text>
                 </View>
             </View>
 

@@ -14,8 +14,6 @@ const Otp = ({ navigation, route }) => {
 
     const { userRole, userId } = route.params;
 
-    console.log(userRole, userId);
-
     const [userOtp, setUserOtp] = useState('');
 
     const handleOtp = () => {
@@ -47,19 +45,17 @@ const Otp = ({ navigation, route }) => {
             )
         }
 
-        console.log(otp);
+        console.log(otp, userId);
 
         const sendRequest = async () => {
             try {
 
-
-
-                const res = await axios.post(`${baseURL}${userRole}/verifyotp`, {
+                const res = await axios.post(`${baseURL}${userRole}/forgotpassword/verifyotp`, {
                     ownerId: userId,
                     otp: otp
                 })
                 if (res.data) {
-                    navigation.reset({index: 0, routes: [{name: 'SignIn Screen'}]})
+                    navigation.reset({index: 0, routes: [{name: 'New Password'}]})
                 }
                 console.log(res.data)
             } catch (error) {

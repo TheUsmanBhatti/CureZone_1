@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import { Image, Keyboard, Text, View, StyleSheet, TextInput, Dimensions, TouchableOpacity } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 
@@ -12,31 +12,84 @@ import { Picker } from '@react-native-picker/picker';
 import RNDateTimePicker from '@react-native-community/datetimepicker';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { ScrollView } from 'react-native-gesture-handler';
+import axios from 'axios';
+import baseURL from '../../assets/common/baseUrl';
+
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import AuthGlobal from '../../context/store/AuthGlobal';
+
+
+const FormData = global.FormData;
 
 const Information = ({ navigation }) => {
 
     const [imageUriGallary, setimageUriGallary] = useState('');
-    const [image1, setImage] = useState('');
+    const [photo, setImage] = useState('');
     const [userName, setUserName] = useState('');
     const [selectedGender, setSelectedGender] = useState('male');
     const [sDate, setSDate] = useState(new Date());
     const [phoneNo, setPhoneNo] = useState('');
     const [show, setShow] = useState(false);
 
+    const context = useContext(AuthGlobal)
+
     const handleSubmit = () => {
         const name = userName.trim();
         const phone = phoneNo.trim();
 
-        if(image1 == '' || name == '' || selectedGender == '' || phoneNo == ''){
-            return(
+        if (photo == '' || name == '' || selectedGender == '' || phoneNo == '') {
+            return (
                 showMessage({
                     message: "Please fill the form completely",
                     backgroundColor: '#7f00ff'
                 })
             )
         }
-        console.log(`${image1} ----  ${userName} ---- ${selectedGender} ---- ${sDate} ---- ${phoneNo}`);
-        navigation.navigate('Tab');
+
+
+        const sendRequest = async () => {
+
+
+            let formdata = new FormData();
+
+            formdata.append("avatar", {
+                uri: photo.uri,
+                name: photo.fileName,
+                type: photo.type
+            });
+            formdata.append("name", name);
+            formdata.append("gender", selectedGender);
+            formdata.append("dob", sDate);
+            formdata.append("phoneNo", phone);
+
+
+            // const data1 = {
+            //     name: name,
+            //     gender: selectedGender,
+            //     dob: sDate,
+            //     phoneNo: phone
+            // }
+
+            AsyncStorage.getItem("jwt").then(async (jwtToken) => {
+                try {
+                    const resp = await axios.put(`${baseURL}${context.stateUser.userRole}/addinfo/${context.stateUser.user.userId}`,
+                    formdata,
+                        {
+                            headers: { Authorization: `Bearer ${jwtToken}` }
+                        });
+                    console.log(resp.data);
+                    if (resp) {
+                        navigation.navigate('Tab')
+                    }
+
+                }
+                catch (error) {
+                    console.log(error.response.data)
+                }
+            }).catch((error) => console.log(error))
+        }
+
+        sendRequest()
     }
 
     const onDateChange = (event, selectedValue) => {
@@ -59,7 +112,6 @@ const Information = ({ navigation }) => {
         };
 
         launchImageLibrary(options, response => {
-            console.log('Response = ', response.assets[0].fileName);
             if (response.didCancel) {
                 console.log('User cancelled image picker');
             } else if (response.error) {
@@ -72,7 +124,7 @@ const Information = ({ navigation }) => {
                     uri: 'data:image/jpeg;base64,' + response.assets[0].base64
                 };
                 setimageUriGallary(source);
-                setImage(response.assets[0].fileName)
+                setImage(response.assets[0])
             }
         });
     };

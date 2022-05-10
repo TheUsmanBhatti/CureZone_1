@@ -3,7 +3,10 @@ import React, { Component } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView } from 'react-native';
 
 // create a component
-const PrescriptionDetail = ({ navigation }) => {
+const PrescriptionDetail = ({ navigation, route }) => {
+
+    const item = route.params;
+
     return (
         <ScrollView style={styles.container}>
             <View style={styles.header}>
@@ -15,34 +18,41 @@ const PrescriptionDetail = ({ navigation }) => {
             </View>
 
             <View style={styles.doctorContainer}>
-                <Image source={require('../../assets/images/My-Pic.jpg')} style={styles.doctorImage} />
+                <Image source={{uri: item.doctor.avatar}} style={styles.doctorImage} />
                 <View style={{ justifyContent: 'space-around' }}>
-                    <Text style={styles.doctorName}>Dr. Muhammad Usman Bhatti</Text>
-                    <Text style={styles.doctorSpeciality}>Eye Specialist</Text>
+                    <Text style={styles.doctorName}>{item.doctor.name}</Text>
+                    <Text style={styles.doctorSpeciality}>{item.doctor.category.name}</Text>
                 </View>
             </View>
 
             <View style={styles.categoryContainer}>
                 <Text style={styles.heading}>Medicines</Text>
 
-                <Medicine />
-                <Medicine />
+{
+    item.medicines.map(item => <Medicine 
+    key={item._id} 
+    mName={item.mName} 
+    strength={item.strength} 
+    dosage={item.dosage} 
+    instruction={item.instruction}/>)
+}
             </View>
 
 
             <View style={styles.categoryContainer}>
                 <Text style={styles.heading}>Advises</Text>
+{
+    item.advises.map(item => <Advise key={item._id} advise={item}/>)
+}
+                
 
-                <Advise/>
-                <Advise/>
-                <Advise/>
             </View>
         </ScrollView>
     );
 };
 
 
-const Medicine = () => {
+const Medicine = ({mName, strength, dosage, instruction}) => {
     return (
         <View style={{
             borderRadius: 15,
@@ -59,28 +69,26 @@ const Medicine = () => {
                 textAlign: 'center',
                 borderBottomWidth: 1,
                 borderBottomColor: '#2e409a'
-            }}>Panadol</Text>
+            }}>{mName}</Text>
             <View style={{ flexDirection: 'row', paddingVertical: 10 }}>
                 <View style={{
                     width: '50%'
                 }}>
                     <Text style={styles.medicineInfoHeading}>Strength</Text>
                     <Text style={styles.medicineInfoHeading}>Dosage</Text>
-                    <Text style={styles.medicineInfoHeading}>Duration</Text>
                     <Text style={styles.medicineInfoHeading}>Instruction</Text>
                 </View>
                 <View>
-                    <Text style={styles.medicineInfoText}>200 mg</Text>
-                    <Text style={styles.medicineInfoText}>1 - 1 - 1</Text>
-                    <Text style={styles.medicineInfoText}>1 Week</Text>
-                    <Text style={styles.medicineInfoText}>After Meal</Text>
+                    <Text style={styles.medicineInfoText}>{strength} mg</Text>
+                    <Text style={styles.medicineInfoText}>{`${dosage.split('')[0]} - ${dosage.split('')[1]} - ${dosage.split('')[2]}`}</Text>
+                    <Text style={styles.medicineInfoText}>{instruction}</Text>
                 </View>
             </View>
         </View>
     )
 }
 
-const Advise = () => {
+const Advise = (props) => {
     return (
         <View style={{
             borderRadius: 15,
@@ -90,7 +98,7 @@ const Advise = () => {
             elevation: 5
         }}>
 
-            <Text style={styles.medicineInfoText}>Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut </Text>
+            <Text style={styles.medicineInfoText}>{props.advise}</Text>
 
         </View>
     )

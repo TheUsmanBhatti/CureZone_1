@@ -12,7 +12,10 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 // ==========================================  Creating a Component  ========================================
 
-const TodayAptCard = ({navigation}) => {
+const TodayAptCard = (props) => {
+
+    const {navigation} = props;
+
     return (
         <TouchableOpacity onPress={() => navigation.navigate('Appointments')}>
             <LinearGradient
@@ -25,10 +28,10 @@ const TodayAptCard = ({navigation}) => {
 {/* ---------------------------  Doctor Image, Name and Speciality Container  */}
 
             <View style={styles.doctorContainer}>
-                <Image source={require('../assets/images/My-Pic.jpg')} style={styles.doctorImage} />
+                <Image source={{uri: props.docImage ? props.docImage : 'https://i.pinimg.com/564x/2d/4a/33/2d4a33f892bd525361c668dafb625dec.jpg'}} style={styles.doctorImage} />
                 <View style={{ justifyContent: 'space-around' }}>
-                    <Text style={styles.doctorName}>Dr. Muhammad Usman Bhatti</Text>
-                    <Text style={styles.doctorSpeciality}>Eye Specialist</Text>
+                    <Text style={styles.doctorName}>{props.docName}</Text>
+                    <Text style={styles.doctorSpeciality}>{props.docCategory.name}</Text>
                 </View>
             </View>
 
@@ -37,7 +40,7 @@ const TodayAptCard = ({navigation}) => {
 
             <View style={styles.timeContainer}>
                 <Icon name="clock-outline" color="#fff" size={20}></Icon>
-                <Text style={styles.time}>11:00 - 12:25 AM</Text>
+                <Text style={styles.time}>{props.aptTime} - {`${props.aptTime.split(':')[0]}:${Number(props.aptTime.split(' ')[0].split(':')[1]) + 25} ${props.aptTime.split(' ')[1]}`}</Text>
             </View>
 
             </LinearGradient>
@@ -52,6 +55,7 @@ const styles = StyleSheet.create({
     container: {
         borderRadius: 15,
         padding: 10,
+        marginBottom: 10
     },
     doctorContainer: {
         flexDirection: 'row',

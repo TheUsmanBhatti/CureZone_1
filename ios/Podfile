@@ -17,6 +17,8 @@ target 'CureZone' do
 
   pod 'RNDateTimePicker', :path => '../node_modules/@react-native-community/datetimepicker'
 
+  pod 'stripe-react-native', :path => '../node_modules/@stripe/stripe-react-native'
+
   target 'CureZoneTests' do
     inherit! :complete
     # Pods for testing

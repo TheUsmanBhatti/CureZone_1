@@ -5,8 +5,9 @@ import baseURL from "../../assets/common/baseUrl"
 
 export const SET_CURRENT_USER = "SET_CURRENT_USER";
 
-export const loginUser = (user, dispatch) => {
-    fetch(`${baseURL}users/signin`, {
+export const loginUser = (userRole, user, dispatch) => {
+
+    fetch(`${baseURL}${userRole}/signin`, {
         method: "POST",
         body: JSON.stringify(user),
         headers: {
@@ -16,13 +17,14 @@ export const loginUser = (user, dispatch) => {
     })
         .then((res) => res.json())
         .then((data) => {
+
             if (data) {
 
-                if (data.message != 'Wrong Password' && data.message != 'User Not Found') {
+                if (data.message != 'Wrong Password' && data.message != 'User Not Found' && data.message != 'Doctor Not Found') {
                     const token = data.token;
                     AsyncStorage.setItem("jwt", token)
                     const decoded = jwt_decode(token)
-                    dispatch(setCurrentUser(decoded, user))
+                    dispatch(setCurrentUser(userRole, decoded, data))
                 }
                 else {
                     showMessage({
@@ -37,9 +39,10 @@ export const loginUser = (user, dispatch) => {
         })
         .catch((err) => {
             showMessage({
-                message: "Please fill correct Credential",
+                message: "Please connect to the Internet",
                 backgroundColor: '#7f00ff'
             })
+            console.log(err);
             logoutUser(dispatch)
         });
 };
@@ -57,15 +60,16 @@ export const getUserProfile = (id) => {
         .then((data) => console.log(data));
 }
 
-export const logoutUser = (dispatch) => {
+export const logoutUser = async (dispatch) => {
 
-    AsyncStorage.removeItem('jwt');
-    dispatch(setCurrentUser({}))
+    await AsyncStorage.removeItem('jwt');
+    dispatch(setCurrentUser())
 }
 
-export const setCurrentUser = (decoded, user) => {
+export const setCurrentUser = (userRole, decoded, user) => {
     return {
         type: SET_CURRENT_USER,
+        userRole: userRole,
         payload: decoded,
         userProfile: user
     }

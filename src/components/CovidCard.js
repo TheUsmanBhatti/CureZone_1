@@ -11,7 +11,8 @@ import LinearGradient from 'react-native-linear-gradient';
 
 // ==========================================  Creating a Component  ========================================
 
-const CovidCard = ({ navigation }) => {
+const CovidCard = (props) => {
+    const {navigation} = props;
     return (
         <TouchableOpacity onPress={() => navigation.navigate('CovidDetail')}>
             <LinearGradient
@@ -19,7 +20,7 @@ const CovidCard = ({ navigation }) => {
                 end={{ x: 0, y: 1 }}
                 colors={['#9e4bff', '#7b54f2']}
                 style={styles.container}>
-                <Text style={styles.country}>Pakistan</Text>
+                <Text style={styles.country}>{props.country}</Text>
 
 {/* ---------------------------  Cases Container  */}
 
@@ -30,7 +31,7 @@ const CovidCard = ({ navigation }) => {
 
                     <View style={styles.cases}>
                         <Text style={styles.casesHeading}>Active</Text>
-                        <Text style={styles.casesNumber}>300</Text>
+                        <Text style={styles.casesNumber}>{props.active}</Text>
                     </View>
 
 
@@ -38,7 +39,7 @@ const CovidCard = ({ navigation }) => {
 
                     <View style={styles.cases}>
                         <Text style={styles.casesHeading}>Death</Text>
-                        <Text style={styles.casesNumber}>300</Text>
+                        <Text style={styles.casesNumber}>{props.death}</Text>
                     </View>
 
 
@@ -46,7 +47,7 @@ const CovidCard = ({ navigation }) => {
 
                     <View style={styles.cases}>
                         <Text style={styles.casesHeading}>Total</Text>
-                        <Text style={styles.casesNumber}>300</Text>
+                        <Text style={styles.casesNumber}>{props.total}</Text>
                     </View>
 
                 </View>

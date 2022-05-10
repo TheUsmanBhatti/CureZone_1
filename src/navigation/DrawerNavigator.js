@@ -1,4 +1,4 @@
-import React, { Component, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
 
 // ----------------Importing Navigation----------------
@@ -9,6 +9,7 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 import Icon from 'react-native-vector-icons/Ionicons';
 import FAIcon from 'react-native-vector-icons/FontAwesome5';
 
+import AuthGlobal from '../context/store/AuthGlobal';
 
 // ----------------Importing Screens----------------
 
@@ -28,6 +29,8 @@ import DoctorAbout from '../screens/DocCategory/DoctorAbout';
 const Drawer = createDrawerNavigator();
 
 const DrawerNavigator = () => {
+
+    const context = useContext(AuthGlobal)
 
     return (
         <Drawer.Navigator
@@ -51,13 +54,14 @@ const DrawerNavigator = () => {
                 )
             }} />
 
-            <Drawer.Screen name='About' component={DoctorAbout} options={{
+            {
+                context.stateUser.userRole == 'doctors' && <Drawer.Screen name='About' component={DoctorAbout} options={{
                     drawerIcon: ({ color, size }) => (
                         <Icon name="person" color={color} size={size} />
                     )
-                }} /> 
-
-
+                }} />
+            }
+            
             <Drawer.Screen name='Hospital' component={Hospital} options={{
                 drawerIcon: ({ color, size }) => (
                     <FAIcon name="hospital-alt" color={color} size={20} />

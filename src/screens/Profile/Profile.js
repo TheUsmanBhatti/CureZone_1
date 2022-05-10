@@ -1,6 +1,6 @@
 // ==========================================  Importing Libraries  =========================================
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import { Image, Keyboard, Text, View, StyleSheet, TextInput, Dimensions, TouchableOpacity } from 'react-native';
 
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -14,6 +14,12 @@ import { launchImageLibrary } from 'react-native-image-picker';
 import { ScrollView } from 'react-native-gesture-handler';
 
 
+import axios from "axios"
+import baseURL from "../../assets/common/baseUrl";
+
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import AuthGlobal from '../../context/store/AuthGlobal';
+
 // ---------------------------  Importing Animateable and Linear Gradient Libraries
 
 import * as Animatable from 'react-native-animatable';
@@ -23,6 +29,11 @@ import LinearGradient from 'react-native-linear-gradient';
 
 const Profile = ({ navigation }) => {
 
+    const context = useContext(AuthGlobal)
+    const [userProfile, setUserProfile] = useState()
+
+    console.log(userProfile);
+
     const [imageUriGallary, setimageUriGallary] = useState('');
     const [image1, setImage] = useState('');
     const [userName, setUserName] = useState('');
@@ -30,6 +41,7 @@ const Profile = ({ navigation }) => {
     const [sDate, setSDate] = useState(new Date());
     const [phoneNo, setPhoneNo] = useState('');
     const [show, setShow] = useState(false);
+
 
     const handleSubmit = () => {
         const name = userName.trim();
@@ -85,108 +97,141 @@ const Profile = ({ navigation }) => {
         });
     };
 
+
+    useEffect(() => {
+        if (
+            context.stateUser.isAuthenticated === false ||
+            context.stateUser.isAuthenticated === null
+        ) {
+            navigation.navigate("SignIn Screen")
+        }
+
+        AsyncStorage.getItem("jwt")
+            .then((res) => {
+                axios
+                    .get(`${baseURL}users/${context.stateUser.user.userId}`, {
+                        headers: { Authorization: `Bearer ${res}` },
+                    })
+                    .then((user) => setUserProfile(user.data))
+            })
+            .catch((error) => console.log(error))
+
+        return () => {
+            setUserProfile();
+        }
+    }, [context.stateUser.isAuthenticated])
+
+
+
+    // setUserName(userProfile ? userProfile.name : '')
+    // setImage(userProfile ? userProfile.avatar : '')
+    // // setSDate(userProfile ? userProfile.dob : '')
+    // setSelectedGender(userProfile ? userProfile.gender : '')
+    // setPhoneNo(userProfile ? userProfile.phoneNo : '')
+
+
     return (
-            <View style={styles.container}>
+        <View style={styles.container}>
 
-                    <TouchableOpacity onPress={() => navigation.openDrawer()}>
-                        <Icon name="md-menu" size={35} color="blue" />
-                    </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.openDrawer()}>
+                <Icon name="md-menu" size={35} color="blue" />
+            </TouchableOpacity>
 
-                    {/* ==================================   Image  ==================================== */}
+            {/* ==================================   Image  ==================================== */}
 
-                    <View style={{ width: 120, alignSelf: 'center' }}>
-                        <Image style={{ width: 100, height: 100, borderRadius: 100, borderColor: '#7f00ff', borderWidth: 2 }} source={imageUriGallary ? imageUriGallary : null} />
+            <View style={{ width: 120, alignSelf: 'center' }}>
+                <Image style={{ width: 100, height: 100, borderRadius: 100, borderColor: '#7f00ff', borderWidth: 2 }} source={imageUriGallary ? imageUriGallary : null} />
 
-                        <TouchableOpacity onPress={() => openGallery()}>
-                            <Icon name="camera" color="#7f00ff" size={30} style={{ position: 'absolute', bottom: 8, right: 8, backgroundColor: '#fff', borderRadius: 50, padding: 2, borderColor: '#7f00ff', borderWidth: 1 }} />
-                        </TouchableOpacity>
-                    </View>
-
-
-                    {/* ==================  Name  ===================== */}
-                    <Text style={styles.textFooter}>Name</Text>
-                    <View style={styles.action}>
-                        <FontAwesome name='user-o' color='#7f00ff' size={20} />
-                        <TextInput
-                            placeholder="Enter Your Name"
-                            placeholderTextColor={'#d8b7fe'}
-                            style={styles.textInput}
-                            value={userName}
-                            onChangeText={setUserName}
-                        ></TextInput>
-                    </View>
-
-                    {/* =======================  Gender  ========================= */}
-
-                    <Text style={[styles.textFooter, { marginBottom: -10, marginTop: 10 }]}>Gender</Text>
-                    <View style={{ borderBottomWidth: 1, borderBottomColor: '#d8b7fe', flexDirection: 'row', alignItems: 'center' }}>
-                        <FontAwesome name={selectedGender == 'male' ? 'male' : selectedGender == 'female' ? 'female' : 'transgender'} color='#7f00ff' size={20} style={{ marginBottom: -10 }} />
-                        <Picker
-                            dropdownIconColor={'blue'}
-                            style={{ color: 'blue', marginBottom: -7, width: '95%' }}
-                            selectedValue={selectedGender}
-                            onValueChange={(itemValue, itemIndex) =>
-                                setSelectedGender(itemValue)
-                            }
-                            prompt='Select your gender'
-                        >
-                            <Picker.Item label="Male" value="male" />
-                            <Picker.Item label="Female" value="female" />
-                            <Picker.Item label="Other" value="other" />
-                        </Picker>
-                    </View>
+                <TouchableOpacity onPress={() => openGallery()}>
+                    <Icon name="camera" color="#7f00ff" size={30} style={{ position: 'absolute', bottom: 8, right: 8, backgroundColor: '#fff', borderRadius: 50, padding: 2, borderColor: '#7f00ff', borderWidth: 1 }} />
+                </TouchableOpacity>
+            </View>
 
 
-                    {/* ======================== Date of Birth  ========================== */}
+            {/* ==================  Name  ===================== */}
+            <Text style={styles.textFooter}>Name</Text>
+            <View style={styles.action}>
+                <FontAwesome name='user-o' color='#7f00ff' size={20} />
+                <TextInput
+                    placeholder="Enter Your Name"
+                    placeholderTextColor={'#d8b7fe'}
+                    style={styles.textInput}
+                    value={userProfile ? userProfile.name : userName}
+                    onChangeText={setUserName}
+                ></TextInput>
+            </View>
 
-                    <Text style={[styles.textFooter, { marginTop: 10 }]}>Date of Birth</Text>
-                    <TouchableOpacity onPress={() => setShow(true)} style={{ borderBottomWidth: 1, borderBottomColor: '#d8b7fe', paddingVertical: 10, flexDirection: 'row' }}>
+            {/* =======================  Gender  ========================= */}
 
-                        <FontAwesome name='calendar' color='#7f00ff' size={20} />
-                        <Text style={{ paddingLeft: 10, fontSize: 16, color: '#7f00ff' }}>{`${curDate} - ${curMonth + 1} - ${curYear}`}</Text>
-                    </TouchableOpacity>
-                    {show && (
-                        <RNDateTimePicker
-                            value={sDate}
-                            maximumDate={Date.parse(new Date())}
-                            display='default'
-                            mode={'date'}
-                            onChange={onDateChange}
-                        />
-                    )
+            <Text style={[styles.textFooter, { marginBottom: -10, marginTop: 10 }]}>Gender</Text>
+            <View style={{ borderBottomWidth: 1, borderBottomColor: '#d8b7fe', flexDirection: 'row', alignItems: 'center' }}>
+                <FontAwesome name={selectedGender == 'male' ? 'male' : selectedGender == 'female' ? 'female' : 'transgender'} color='#7f00ff' size={20} style={{ marginBottom: -10 }} />
+                <Picker
+                    dropdownIconColor={'blue'}
+                    style={{ color: 'blue', marginBottom: -7, width: '95%' }}
+                    selectedValue={selectedGender}
+                    onValueChange={(itemValue, itemIndex) =>
+                        setSelectedGender(itemValue)
                     }
-
-                    {/* ============================== Phone Number    ================ */}
-                    <Text style={[styles.textFooter, { marginTop: 10 }]}>Phone Number</Text>
-                    <View style={styles.action}>
-                        <FontAwesome name='phone' color='#7f00ff' size={20} />
-                        <TextInput
-                            maxLength={11}
-                            keyboardType='number-pad'
-                            placeholder="Enter Your Phone Number"
-                            placeholderTextColor={'#d8b7fe'}
-                            style={styles.textInput}
-                            value={phoneNo}
-                            onChangeText={setPhoneNo}
-                        ></TextInput>
-                    </View>
+                    prompt='Select your gender'
+                >
+                    <Picker.Item label="Male" value="male" />
+                    <Picker.Item label="Female" value="female" />
+                    <Picker.Item label="Other" value="other" />
+                </Picker>
+            </View>
 
 
+            {/* ======================== Date of Birth  ========================== */}
 
-                    {/* ===========================  Submit Button  ================================= */}
-                    <TouchableOpacity
-                        style={styles.submit}
-                        onPress={() => handleSubmit()}>
-                        <LinearGradient
-                            colors={['#9e4bff', '#7f00ff']}
-                            style={styles.submit}
-                        >
-                            <Text style={[styles.textSubmit, {
-                                color: '#fff'
-                            }]}>Submit</Text>
-                        </LinearGradient>
-                    </TouchableOpacity>
-</View>
+            <Text style={[styles.textFooter, { marginTop: 10 }]}>Date of Birth</Text>
+            <TouchableOpacity onPress={() => setShow(true)} style={{ borderBottomWidth: 1, borderBottomColor: '#d8b7fe', paddingVertical: 10, flexDirection: 'row' }}>
+
+                <FontAwesome name='calendar' color='#7f00ff' size={20} />
+                <Text style={{ paddingLeft: 10, fontSize: 16, color: '#7f00ff' }}>{`${curDate} - ${curMonth + 1} - ${curYear}`}</Text>
+            </TouchableOpacity>
+            {show && (
+                <RNDateTimePicker
+                    value={sDate}
+                    maximumDate={Date.parse(new Date())}
+                    display='default'
+                    mode={'date'}
+                    onChange={onDateChange}
+                />
+            )
+            }
+
+            {/* ============================== Phone Number    ================ */}
+            <Text style={[styles.textFooter, { marginTop: 10 }]}>Phone Number</Text>
+            <View style={styles.action}>
+                <FontAwesome name='phone' color='#7f00ff' size={20} />
+                <TextInput
+                    maxLength={11}
+                    keyboardType='number-pad'
+                    placeholder="Enter Your Phone Number"
+                    placeholderTextColor={'#d8b7fe'}
+                    style={styles.textInput}
+                    value={phoneNo}
+                    onChangeText={setPhoneNo}
+                ></TextInput>
+            </View>
+
+
+
+            {/* ===========================  Submit Button  ================================= */}
+            <TouchableOpacity
+                style={styles.submit}
+                onPress={() => handleSubmit()}>
+                <LinearGradient
+                    colors={['#9e4bff', '#7f00ff']}
+                    style={styles.submit}
+                >
+                    <Text style={[styles.textSubmit, {
+                        color: '#fff'
+                    }]}>Submit</Text>
+                </LinearGradient>
+            </TouchableOpacity>
+        </View>
     );
 }
 

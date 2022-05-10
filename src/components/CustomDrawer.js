@@ -14,11 +14,13 @@ import FAIcon from 'react-native-vector-icons/FontAwesome5';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import AuthGlobal from '../context/store/AuthGlobal';
 import { logoutUser } from '../context/actions/Auth.actions';
 
 function CustomDrawer(props) {
 
     const { navigation } = props;
+    const context = useContext(AuthGlobal)
 
     return (
         <LinearGradient
@@ -36,8 +38,8 @@ function CustomDrawer(props) {
                     <DrawerItemList {...props} />
                 </DrawerContentScrollView>
 
-                <TouchableOpacity style={{paddingHorizontal: 20, flexDirection: 'row', paddingBottom: 5}} onPress={() => [
-                        AsyncStorage.removeItem("jwt"),
+                <TouchableOpacity style={{paddingHorizontal: 20, flexDirection: 'row', paddingBottom: 5}} onPress={async () => [
+                        await AsyncStorage.removeItem("jwt"),
                         logoutUser(context.dispatch)
                     ]}>
                     <FAIcon name='sign-out-alt' color='#7f00ff' size={20} />

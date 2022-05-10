@@ -7,6 +7,7 @@ export default function (state, action) {
         return {
             ...state,
             isAuthenticated: !isEmpty(action.payload),
+            userRole: action.userRole,
             user: action.payload,
             userProfile: action.userProfile
         };

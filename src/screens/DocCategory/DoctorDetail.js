@@ -4,11 +4,16 @@ import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView } from 'rea
 
 import { DoctorCard, PatientReviews } from '../../components';
 
+import Moment from 'moment';
 
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 // create a component
-const DoctorDetail = ({ navigation }) => {
+const DoctorDetail = ({ navigation, route }) => {
+
+    const item = route.params
+
+
     return (
         <ScrollView style={styles.container}>
             <View style={styles.header}>
@@ -20,53 +25,65 @@ const DoctorDetail = ({ navigation }) => {
             </View>
 
             <View style={{ marginTop: -55, marginHorizontal: 15 }}>
-                <DoctorCard />
+                <DoctorCard
+                    docImage={item.avatar}
+                    docName={item.name}
+                    docEdu={item.education}
+                    docCategory={item.category.name}
+                    docRating={item.rating}
+                />
             </View>
 
-            <View style={{margin: 10}}>
+            <View style={{ margin: 10 }}>
                 <Text style={styles.heading}>About Doctor</Text>
-                <Text style={styles.aboutDoc} numberOfLines={4} >Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</Text>
+                <Text style={styles.aboutDoc} numberOfLines={4} >{item.about}</Text>
             </View>
 
-            <View style={{margin: 10}}>
+            <View style={{ margin: 10 }}>
                 <Text style={styles.heading}>Book Video Consultation</Text>
-                <View style={{marginTop: -7}}>
-                    <View style={{flexDirection: 'row', justifyContent: 'space-between', borderBottomColor: '#c9b5bb', borderBottomWidth: 1, paddingVertical: 10}}>
-                        <View style={{flexDirection: 'row'}}>
+                <View style={{ marginTop: -7 }}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', borderBottomColor: '#c9b5bb', borderBottomWidth: 1, paddingVertical: 10 }}>
+                        <View style={{ flexDirection: 'row' }}>
                             <Icon name='credit-card-outline' size={20} color='#a0878d' />
-                            <Text style={{fontFamily: 'Montserrat-Medium', paddingLeft: 5, color:'#a0878d'}}>Fee:</Text>
+                            <Text style={{ fontFamily: 'Montserrat-Medium', paddingLeft: 5, color: '#a0878d' }}>Fee:</Text>
                         </View>
-                        <Text style={{fontFamily: 'Montserrat-Medium', color:'#a0878d'}}>Rs 1000</Text>
+                        <Text style={{ fontFamily: 'Montserrat-Medium', color: '#a0878d' }}>Rs {item.fee}</Text>
                     </View>
 
-                    <View style={{flexDirection: 'row', justifyContent: 'space-between', borderBottomColor: '#c9b5bb', borderBottomWidth: 1, paddingVertical: 10}}>
-                        <View style={{flexDirection: 'row'}}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', borderBottomColor: '#c9b5bb', borderBottomWidth: 1, paddingVertical: 10 }}>
+                        <View style={{ flexDirection: 'row' }}>
                             <Icon name='weather-sunny' size={20} color='#a0878d' />
-                            <Text style={{fontFamily: 'Montserrat-Medium', paddingLeft: 5, color:'#a0878d'}}>Days</Text>
+                            <Text style={{ fontFamily: 'Montserrat-Medium', paddingLeft: 5, color: '#a0878d' }}>Days</Text>
                         </View>
-                        <Text style={{fontFamily: 'Montserrat-Medium', color:'#a0878d'}}>Mon, Tue, Wed, Thu, Fri, Sat</Text>
-                    </View>
 
-                    <View style={{flexDirection: 'row', justifyContent: 'space-between', borderBottomColor: '#c9b5bb', borderBottomWidth: 1, paddingVertical: 10}}>
                         <View style={{flexDirection: 'row'}}>
-                            <Icon name='clock-outline' size={20} color='#a0878d' />
-                            <Text style={{fontFamily: 'Montserrat-Medium', paddingLeft: 5, color:'#a0878d'}}>Time:</Text>
+                        {
+                            item.consultationDays.map(item => <Text key={item} style={{ fontFamily: 'Montserrat-Medium', color: '#a0878d' }}>{item}, </Text>)
+                        }
                         </View>
-                        <Text style={{fontFamily: 'Montserrat-Medium', color:'#a0878d'}}>10:00 AM - 01:00 PM</Text>
+                       
                     </View>
 
-                    <TouchableOpacity onPress={() => navigation.navigate('Book Appointment')} style={{backgroundColor: '#5a62ac', alignItems:'center', borderRadius: 10, marginTop: 10}}>
-                        <Text style={{fontFamily: 'Montserrat-SemiBold', fontSize: 20, color: '#fff', paddingVertical: 10}}>Book Appoinment</Text>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', borderBottomColor: '#c9b5bb', borderBottomWidth: 1, paddingVertical: 10 }}>
+                        <View style={{ flexDirection: 'row' }}>
+                            <Icon name='clock-outline' size={20} color='#a0878d' />
+                            <Text style={{ fontFamily: 'Montserrat-Medium', paddingLeft: 5, color: '#a0878d' }}>Time:</Text>
+                        </View>
+                        {/* <Text style={{ fontFamily: 'Montserrat-Medium', color: '#a0878d' }}>{`${Moment(item.consultationTime[0]).format("hh:mm A")} - ${Moment(item.consultationTime[1]).format("hh:mm A")}`}</Text> */}
+                    </View>
+
+                    <TouchableOpacity onPress={() => navigation.navigate('Book Appointment', item)} style={{ backgroundColor: '#5a62ac', alignItems: 'center', borderRadius: 10, marginTop: 10 }}>
+                        <Text style={{ fontFamily: 'Montserrat-SemiBold', fontSize: 20, color: '#fff', paddingVertical: 10 }}>Book Appoinment</Text>
                     </TouchableOpacity>
 
                 </View>
             </View>
 
-            <View style={{margin: 10}}>
+            <View style={{ margin: 10 }}>
                 <Text style={styles.heading}>Patient Reviews</Text>
-                <PatientReviews/>
-                <PatientReviews/>
-                <PatientReviews/>
+                <PatientReviews />
+                <PatientReviews />
+                <PatientReviews />
             </View>
         </ScrollView>
     );
@@ -99,9 +116,9 @@ const styles = StyleSheet.create({
         fontFamily: 'Montserrat-Bold',
         marginBottom: 10
     },
-    aboutDoc:{
+    aboutDoc: {
         fontFamily: 'Montserrat-Medium',
-        color: '#a0878d', 
+        color: '#a0878d',
         marginTop: -10
     }
 });

@@ -1,103 +1,164 @@
 //import liraries
-import React, { Component, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, FlatList } from 'react-native';
+import React, { useState, useContext, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, FlatList, ActivityIndicator } from 'react-native';
+
 
 import { DoctorCard } from '../../components';
 
+import axios from "axios"
+import baseURL from "../../assets/common/baseUrl";
+import AuthGlobal from '../../context/store/AuthGlobal';
+
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { Calendar, CalendarList, Agenda } from 'react-native-calendars';
 
 
 // create a component
-const BookAppointment = ({ navigation }) => {
+const BookAppointment = ({ navigation, route }) => {
+
+    const item = route.params
 
     const d = new Date();
     const curDate = d.getDate();
-    const curMonth = d.getMonth();
+    const curMonth = d.getMonth()+1;
     const curYear = d.getFullYear();
 
+    const context = useContext(AuthGlobal)
+
+
+    const [error, setError] = useState(false);
+    const [loaded, setLoaded] = useState(false);
+
+    const [docApts, setDocApts] = useState()
+    const [aptResponse, setAptResponse] = useState()
     const [selectedDate, setSelectedDate] = useState(`${curYear}-${curMonth}-${curDate}`);
 
     const [aSlot, setASlot] = useState();
 
-    const availableSlots = ['10:00', '11:00', '12:00', '02:00', '03:00', '03:30', '04:00', '04:30', '05:00']
 
+
+    const handleApt = async () => {
+        if (aSlot != undefined) {
+
+            const dateOfApt = selectedDate + ' ' + aSlot;
+
+            const data = {
+                user: context.stateUser.user.userId,
+                doctor: item._id,
+                dateOfApt: dateOfApt,
+                slotOfApt: aSlot
+            }
+
+            console.log(data);
+
+            AsyncStorage.getItem("jwt")
+                .then(async (jwtToken) => {
+                    try {
+                        const resp = await axios.post(`${baseURL}appointments`,
+                            data,
+                            {
+                                headers: { Authorization: `Bearer ${jwtToken}` }
+                            });
+                        setAptResponse(resp.data);
+                    }
+                    catch (error) {
+                        console.log(error.response.data)
+                    }
+                })
+
+        
+
+        }
+    }
+
+
+    
 
     return (
-        <ScrollView style={styles.container}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <Image source={require('../../assets/images/Back.png')} style={{ width: 10, height: 25, resizeMode: 'center', marginHorizontal: 20, marginVertical: 12 }} tintColor='#fff' />
-                </TouchableOpacity>
+        <>
+            <ScrollView style={styles.container}>
 
-                <Text style={styles.headerText}>Book Appoinment</Text>
-            </View>
+                <View style={styles.header}>
+                    <TouchableOpacity onPress={() => navigation.goBack()}>
+                        <Image source={require('../../assets/images/Back.png')} style={{ width: 10, height: 25, resizeMode: 'center', marginHorizontal: 20, marginVertical: 12 }} tintColor='#fff' />
+                    </TouchableOpacity>
 
-            <View style={{ marginTop: -55, marginHorizontal: 15 }}>
-                <DoctorCard />
-            </View>
+                    <Text style={styles.headerText}>Book Appoinment</Text>
+                </View>
 
-
-
-
-
-
-
-            <CalendarList
-                current={`${curYear}-${curMonth}-${curDate}`}
-
-                minDate={`${curYear}-${curMonth + 1}-${curDate}`}
-
-                onDayPress={day => {
-                    setSelectedDate(day.dateString)
-                }}
-
-                horizontal={true}
-
-                // enableSwipeMonths={true}
-
-                markedDates={{
-                    [selectedDate]: { selected: true, selectedColor: '#5a62ac' },
-                }}
-
-                selected={`${curYear}-${curMonth + 1}-${curDate}`}
-
-                pastScrollRange={1}
-                futureScrollRange={1}
-
-                theme={{
-                    textDayFontFamily: 'Montserrat-Medium',
-                    textMonthFontFamily: 'Montserrat-Bold',
-                    textDayHeaderFontFamily: 'Montserrat-SemiBold',
-                    monthTextColor: '#5a62ac'
-                }}
-            />
-
-
-
-
-            <View style={{ margin: 10 }}>
-                <Text style={styles.heading}>Available Slots</Text>
-
-                <View style={{flexDirection: 'row', justifyContent: 'center',flexWrap: 'wrap'}}>
-                    {availableSlots.map((item) => <TouchableOpacity 
-                    key={item} 
-                    onPress={() => setASlot(item)}
-                    style={{ backgroundColor: item == aSlot ? 'green' : 'blue', margin: 5, paddingVertical: 5, paddingHorizontal: 15, borderRadius: 20 }}>
-
-                        <Text style={{ color: '#fff' }}>{item}</Text>
-                    </TouchableOpacity>)}
+                <View style={{ marginTop: -55, marginHorizontal: 15 }}>
+                    <DoctorCard
+                        docImage={item.avatar}
+                        docName={item.name}
+                        docEdu={item.education}
+                        docCategory={item.category.name}
+                        docRating={item.rating}
+                    />
                 </View>
 
 
-            </View>
-
-            <TouchableOpacity style={{ backgroundColor: '#5a62ac', alignItems: 'center', borderRadius: 10, margin: 10 }}>
-                <Text style={{ fontFamily: 'Montserrat-SemiBold', fontSize: 20, color: '#fff', paddingVertical: 10 }}>Next</Text>
-            </TouchableOpacity>
 
 
-        </ScrollView>
+
+
+
+                <CalendarList
+                    current={`${curYear}-${curMonth}-${curDate}`}
+
+                    minDate={`${curYear}-${curMonth}-${curDate}`}
+
+                    onDayPress={day => {
+                        setSelectedDate(day.dateString)
+                    }}
+
+                    horizontal={true}
+
+                    // enableSwipeMonths={true}
+
+                    markedDates={{
+                        [selectedDate]: { selected: true, selectedColor: '#5a62ac' },
+                    }}
+
+                    selected={`${curYear}-${curMonth}-${curDate}`}
+
+                    pastScrollRange={1}
+                    futureScrollRange={1}
+
+                    theme={{
+                        textDayFontFamily: 'Montserrat-Medium',
+                        textMonthFontFamily: 'Montserrat-Bold',
+                        textDayHeaderFontFamily: 'Montserrat-SemiBold',
+                        monthTextColor: '#5a62ac'
+                    }}
+                />
+
+
+
+
+                <View style={{ margin: 10 }}>
+                    <Text style={styles.heading}>Available Slots</Text>
+
+                    <View style={{ flexDirection: 'row', justifyContent: 'flex-start', flexWrap: 'wrap' }}>
+                        {item.meetingSlots.map((item) => <TouchableOpacity
+                            key={item}
+                            onPress={() => setASlot(item)}
+                            style={{ backgroundColor: item == aSlot ? 'green' : 'blue', margin: 5, paddingVertical: 5, paddingHorizontal: 15, borderRadius: 20 }}>
+
+                            <Text style={{ color: '#fff' }}>{item}</Text>
+                        </TouchableOpacity>)}
+                    </View>
+
+
+                </View>
+
+                <TouchableOpacity onPress={() => handleApt()}
+                    style={{ backgroundColor: '#5a62ac', alignItems: 'center', borderRadius: 10, margin: 10 }}>
+                    <Text style={{ fontFamily: 'Montserrat-SemiBold', fontSize: 20, color: '#fff', paddingVertical: 10 }}>Next</Text>
+                </TouchableOpacity>
+
+            </ScrollView>
+        </>
     );
 };
 

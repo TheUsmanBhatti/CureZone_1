@@ -1,6 +1,6 @@
 // ==========================================  Importing Libraries  =========================================
 
-import React from 'react';
+import React, {useState} from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 
 
@@ -11,10 +11,61 @@ import LinearGradient from 'react-native-linear-gradient';
 
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Feather from 'react-native-vector-icons/Feather';
+import SwitchSelector from "react-native-switch-selector";
+import { validate } from 'react-email-validator';
+import { showMessage, hideMessage } from "react-native-flash-message";
+import axios from 'axios'
+import baseURL from '../../assets/common/baseUrl';
 
 // ==========================================  Creating a Component  ========================================
 
 const ForgotPassord = ({navigation}) => {
+
+    const [userRole, setUserRole] = useState('doctors');
+    const [userEmail, setUserEmail] = useState('');
+
+    const handleNext = () => {
+        const email = userEmail.toLowerCase().trim()
+        if(email == ''){
+            return showMessage({
+                message: "Please Enter Your Email",
+                backgroundColor: '#7f00ff'
+            })
+        }
+        if(!validate(userEmail)){
+            return showMessage({
+                message: "Invalid Email",
+                backgroundColor: '#7f00ff'
+            })
+        }
+        
+        
+        const sendRequest = async () => {
+            try {
+                
+                console.log(`${baseURL}${userRole}/forgot-password`);
+
+                const res = await axios.post(`${baseURL}${userRole}/forgot-password`, {
+                    email: email
+                })
+
+                if (res.data) {
+                    const userId = res.data._id;
+                    navigation.navigate('OTP Screen 2', {userRole, userId})
+                }
+            } catch (error) {
+                // console.log(error.response.data.message)
+                showMessage({
+                    message: error.response.data.message,
+                    backgroundColor: '#7f00ff'
+                })
+            }
+        }
+
+        sendRequest()
+
+    }
+
     return (
         <LinearGradient
             start={{ x: 1, y: 0.3 }}
@@ -27,6 +78,28 @@ const ForgotPassord = ({navigation}) => {
             <View style={styles.header}>
                 <Text style={styles.textHeader}>Forgot Password</Text>
                 <Text style={{ color: '#fff' }}>Please enter the e-mail of your account.</Text>
+            </View>
+
+            <View style={{ width: '100%', height: 10, marginBottom: 40, alignItems: 'center', justifyContent: 'center' }}>
+                <SwitchSelector
+                    textColor={'#d8b7fe'}
+                    selectedColor={"#fff"}
+                    buttonColor={'#7b54f2'}
+                    borderColor={'#7b54f2'}
+                    animationDuration={300}
+                    height={45}
+                    textStyle={{ fontFamily: 'Montserrat-Medium' }}
+                    selectedTextStyle={{ fontFamily: 'Montserrat-Medium' }}
+                    hasPadding
+                    options={[
+                        { label: "Doctor", value: "doctors" },
+                        { label: "Patient", value: "users" }
+                    ]}
+                    fontSize={20}
+                    style={{ width: 300, alignItem: 'center' }}
+                    initial={0}
+                    onPress={value => setUserRole(value)}
+                />
             </View>
 
             <Animatable.View
@@ -42,13 +115,18 @@ const ForgotPassord = ({navigation}) => {
                         placeholderTextColor={'#d8b7fe'}
                         style={styles.textInput}
                         autoCapitalize='none'
+                        value={userEmail}
+                        onChangeText={setUserEmail}
                     ></TextInput>
-                    <Feather name='check-circle' color='#7f00ff' size={20} />
+                    {
+                        validate(userEmail) ? <Feather name='check-circle' color='#7f00ff' size={20} />
+                        : null
+                    }
                 </View>
 
                 <TouchableOpacity
                     style={styles.nextbtn}
-                    onPress={() => navigation.navigate('New Password')}>
+                    onPress={() => handleNext()}>
                     <LinearGradient
                         colors={['#9e4bff', '#7f00ff']}
                         style={styles.nextbtn}

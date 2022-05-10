@@ -10,18 +10,18 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 // ==========================================  Creating a Component  ========================================
 
-const PrescriptionCard = ({navigation}) => {
+const PrescriptionCard = (props) => {
     return(
-        <TouchableOpacity style={styles.container} onPress={() => navigation.navigate('Prescription Detail')}>
+        <TouchableOpacity style={styles.container} onPress={props.onPress}>
 
 
 {/* ---------------------------  Doctor Image, Name and Speciality Container  */}
 
             <View style={styles.doctorContainer}>
-                <Image source={require('../assets/images/My-Pic.jpg')} style={styles.doctorImage} />
+                <Image source={{uri: props.docImage}} style={styles.doctorImage} />
                 <View style={{ justifyContent: 'space-around' }}>
-                    <Text style={styles.doctorName}>Dr. Muhammad Usman Bhatti</Text>
-                    <Text style={styles.doctorSpeciality}>Eye Specialist</Text>
+                    <Text style={styles.doctorName}>{props.docName}</Text>
+                    <Text style={styles.doctorSpeciality}>{props.docCate}</Text>
                 </View>
             </View>
 
@@ -30,10 +30,11 @@ const PrescriptionCard = ({navigation}) => {
 
             <View style={{backgroundColor: '#d4ddf4', borderRadius: 10, marginBottom: 10}}>
                 <View style={styles.prescriptionContaier}>
-                    <Text style={styles.prescription}>O  Panadol</Text>
-                    <Text style={styles.prescription}>O  Clarion</Text>
-                    <Text style={styles.prescription}>O  Cofnil</Text>
-                    <Text style={styles.prescription}>O  Disprine</Text>
+
+                {
+                    props.docMedicine.map(item => <Text key={item} style={styles.prescription}>O  {item.mName}</Text>)
+                }
+
                 </View>
             </View>
 

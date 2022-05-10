@@ -25,23 +25,30 @@ const SignIn = ({ navigation }) => {
 
     const context = useContext(AuthGlobal)
 
-    const [userRole, setUserRole] = useState('doctor');
+    const [userRole, setUserRole] = useState('doctors');
     const [userEmail, setUserEmail] = useState('');
     const [userPassword, setUserPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false)
 
+    const [userProfile, setUserProfile] = useState();
+
     useEffect(() => {
         if(context.stateUser.isAuthenticated === true){
-            console.log('Navigate to Tab');
-            navigation.navigate('Tab')
+            if(context.stateUser.userProfile.isFilled == true){
+                // navigation.reset({index: 0, routes: [{name: 'Tab'}]})
+                navigation.navigate('Tab')
+            }
+            else{
+                navigation.navigate('Information Screen')
+            }   
         }
     }, [context.stateUser.isAuthenticated])
 
     const handleSignIn = () => {
-        const email = userEmail.trim()
+        const email = userEmail.toLowerCase().trim()
         const password = userPassword.trim()
 
-        if (!signInAuth(email, password)) {
+        if (!signInAuth( email, password)) {
             // console.log(`Role: ${userRole}, Email: ${email}, Password: ${password} `);
             
             const user = {
@@ -49,7 +56,7 @@ const SignIn = ({ navigation }) => {
                 password
             }
 
-            loginUser(user, context.dispatch)
+            loginUser(userRole, user, context.dispatch)
         }
 
     }
@@ -80,8 +87,8 @@ const SignIn = ({ navigation }) => {
                     selectedTextStyle={{ fontFamily: 'Montserrat-Medium' }}
                     hasPadding
                     options={[
-                        { label: "Doctor", value: "doctor" },
-                        { label: "Patient", value: "patient" }
+                        { label: "Doctor", value: "doctors" },
+                        { label: "Patient", value: "users" }
                     ]}
                     fontSize={20}
                     style={{ width: 300, alignItem: 'center' }}

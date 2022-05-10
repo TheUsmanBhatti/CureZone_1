@@ -11,48 +11,50 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 // ==========================================  Creating a Component  ========================================
 
-const UserAptCard = () => {
+const UserAptCard = (props) => {
+
+    const { navigation } = props;
+
     return (
         <View style={styles.container}>
 
 
-{/* ---------------------------  Doctor Image, Name and Speciality Container  */}
+            {/* ---------------------------  Doctor Image, Name and Speciality Container  */}
 
             <View style={styles.doctorContainer}>
-                <Image source={require('../assets/images/My-Pic.jpg')} style={styles.doctorImage} />
+                <Image source={{ uri: props.docImage ? props.docImage : 'https://i.pinimg.com/564x/2d/4a/33/2d4a33f892bd525361c668dafb625dec.jpg' }} style={styles.doctorImage} />
                 <View style={{ justifyContent: 'space-around' }}>
-                    <Text style={styles.doctorName}>Dr. Muhammad Usman Bhatti</Text>
-                    <Text style={styles.doctorSpeciality}>Eye Specialist</Text>
+                    <Text style={styles.doctorName}>{props.docName}</Text>
+                    <Text style={styles.doctorSpeciality}>{props.docCategory.name}</Text>
                 </View>
             </View>
 
 
-{/* ---------------------------  Appointment Time and Date of Consultation  */}
+            {/* ---------------------------  Appointment Time and Date of Consultation  */}
 
-            <View style={{backgroundColor: '#d4ddf4', borderRadius: 10, marginBottom: 10}}>
+            <View style={{ backgroundColor: '#d4ddf4', borderRadius: 10, marginBottom: 10 }}>
                 <View style={styles.timeContainer}>
                     <Icon name="calendar-month" color="#5a62ac" size={20}></Icon>
-                    <Text style={styles.dateAndTime}>Wednesday, Mar 22</Text>
+                    <Text style={styles.dateAndTime}>{props.AptDate}</Text>
                 </View>
 
                 <View style={styles.timeContainer}>
                     <Icon name="clock-outline" color="#5a62ac" size={20}></Icon>
-                    <Text style={styles.dateAndTime}>11:00 - 12:25 AM</Text>
+                    <Text style={styles.dateAndTime}>{props.AptSlot}</Text>
                 </View>
             </View>
 
 
-{/* ---------------------------  Button to Cancel or Reschedule the Appointment  */}
+            {/* ---------------------------  Button to Cancel or Reschedule the Appointment  */}
 
-            <View style={styles.buttonContainer}>
-                <TouchableOpacity style={[styles.btnDesign, {backgroundColor: '#fff'}]}>
-                    <Text style={[styles.btnText, {color: '#5a62ac'}]}>Cancel</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={[styles.btnDesign, {backgroundColor: '#5a62ac'}]}>
-                    <Text style={[styles.btnText, {color: '#fff'}]}>ReSchedule</Text>
+            {props.ButtonEnable && <View style={styles.buttonContainer}>
+                <TouchableOpacity style={[styles.btnDesign, { backgroundColor: '#5a62ac' }]} onPress={() => navigation.navigate('Video Call', props.Item)}>
+                    <Text style={[styles.btnText, { color: '#fff' }]}>Start Consultation</Text>
                 </TouchableOpacity>
             </View>
+
+            }
+
 
         </View>
     );
@@ -66,7 +68,8 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         borderRadius: 15,
         padding: 10,
-        elevation: 2
+        elevation: 2,
+        marginVertical: 5
     },
     doctorContainer: {
         flexDirection: 'row',
@@ -98,18 +101,18 @@ const styles = StyleSheet.create({
         fontFamily: 'Montserrat-Light',
         fontSize: 16
     },
-    buttonContainer:{
+    buttonContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between'
     },
-    btnDesign:{
+    btnDesign: {
         borderWidth: 2,
-        width: '48%',
+        width: '100%',
         alignItems: 'center',
         borderRadius: 50,
         borderColor: '#d4ddf4'
     },
-    btnText:{
+    btnText: {
         fontFamily: 'Montserrat-Medium',
         fontSize: 18,
         padding: 10
