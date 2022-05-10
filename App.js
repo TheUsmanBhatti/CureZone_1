@@ -6,17 +6,21 @@ import Auth from './src/context/store/Auth';
 
 // ----------------Importing Navigator Components----------------
 import StackNavigator from './src/navigation/StackNavigator';
+import MapViewScreen from './src/screens/Maps';
 
 LogBox.ignoreLogs([
     "[react-native-gesture-handler] Seems like you\'re using an old API with gesture components, check out new Gestures system!",
 ]);
 
 const App = () => {
+    
     return (
-        <Auth>
-            <StackNavigator />
-            <FlashMessage position="top" />
-        </Auth>
+        // <Auth>
+        //     <StackNavigator />
+        //     <FlashMessage position="top" />
+        // </Auth>
+        <MapViewScreen />
+     
     );
 };
 
