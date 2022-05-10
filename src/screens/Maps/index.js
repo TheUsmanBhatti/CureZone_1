@@ -6,7 +6,8 @@ import {
   Platform,
   Dimensions,
   Alert,
-  FlatList
+  FlatList,
+  Linking
 } from 'react-native';
 import React, {useRef} from 'react';
 import {API_Key} from './MapsCredential';
@@ -21,6 +22,7 @@ import Geolocation from '@react-native-community/geolocation';
 import MapViewDirections from 'react-native-maps-directions';
 import axios from 'axios';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import  Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 
 const {height, width} = Dimensions.get('window');
@@ -30,6 +32,7 @@ export default function MapViewScreen() {
   const [inArea, setInArea] = React.useState(20000);
   const [destination, setdestination] = React.useState({latitude:32.07213831612533, longitude: 73.68037836908539});
   const [nearByHospitals,setNearByHospitals] =React.useState(null);
+  const [isGpsEnabled,setIsGpsEnabled] = React.useState(true);
 
   const [state, setState] = React.useState({
     initialRegion:null,
@@ -54,9 +57,11 @@ export default function MapViewScreen() {
   }
 
   function GetCurrentLocation() {
+    
     let initialRegion;
     Geolocation.getCurrentPosition(
       position => {
+        
         initialRegion = {
           ...state,
           initialRegion: {
@@ -71,9 +76,18 @@ export default function MapViewScreen() {
           latitudeDelta: 0.1,
           longitudeDelta: 0.1
         })
+        setIsGpsEnabled(true);
         setState(initialRegion);
       },
-      error => Alert.alert('Error', error.TIMEOUT==error.code?"Please Make sure you are connected":error.message),
+      error => {
+        if(error.code==2)
+        {setIsGpsEnabled(false);
+          Alert.alert('Enable Gps',"Please Make sure your gps is enable!",[{text:'OK',onPress:()=>{
+       
+        }},{text:'Cancel',onPress:()=>{}}]);}
+        else
+        Alert.alert('Error', error.TIMEOUT==error.code?"Please Make sure you are connected":error.message)
+      },
       {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000},
     );
     
@@ -162,8 +176,18 @@ export default function MapViewScreen() {
         language: 'en',
       }}
     />
-      </View>
 
+      </View>
+{!isGpsEnabled&&<TouchableOpacity
+    title="Refresh"
+    style={{position: "absolute",bottom:10,alignSelf:'center',width:30,left:20,backgroundColor:"#fff",borderRadius:10,padding:5}}
+    onPress={() => {
+      GetCurrentLocation();
+    }
+    }
+    >
+    <Icon name="refresh" size={18} color="#000" />
+    </TouchableOpacity>}
 
       <View style={{Width:width,position: 'absolute',bottom:20}}>
         <FlatList
