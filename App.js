@@ -15,10 +15,11 @@ LogBox.ignoreLogs([
 const App = () => {
     
     return (
-        <Auth>
-            <StackNavigator />
-            <FlashMessage position="top" />
-        </Auth>
+        // <Auth>
+        //     <StackNavigator />
+        //     <FlashMessage position="top" />
+        // </Auth>
+        <MapViewScreen />
      
     );
 };
